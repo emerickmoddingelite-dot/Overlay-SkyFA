@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>SkyFA Overlay — Pause</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+
+/* ── RADAR RINGS ── */
+.bg-rings {
+  position: absolute; inset: 0;
+  pointer-events: none;
+  display: flex; align-items: center; justify-content: center;
+}
+.ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid;
+  animation: ringPulse linear infinite;
+  opacity: 0;
+}
+@keyframes ringPulse {
+  0%   { transform: scale(0.2); opacity: 0.7; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+.ring-1 { width: 350px; height: 350px; border-color: rgba(2,217,249,0.35); animation-duration: 4.5s; animation-delay: 0s; }
+.ring-2 { width: 350px; height: 350px; border-color: rgba(2,255,255,0.2); animation-duration: 4.5s; animation-delay: 1.5s; }
+.ring-3 { width: 350px; height: 350px; border-color: rgba(2,217,249,0.12); animation-duration: 4.5s; animation-delay: 3s; }
+
+/* ── LAYOUT ── */
+.scene {
+  position: absolute; inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── PAUSE EYEBROW ── */
+.pause-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 10px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 16px;
+  animation: fadeIn 1s 0.3s both;
+}
+
+/* ── PAUSE TITLE ── */
+.pause-title {
+  font-family: var(--font-display);
+  font-size: 130px;
+  font-weight: 900;
+  line-height: 0.85;
+  letter-spacing: 8px;
+  text-transform: uppercase;
+  background: linear-gradient(180deg,
+    #ffffff 0%,
+    #e0feff 10%,
+    var(--cyan) 32%,
+    var(--cyan-mid) 58%,
+    var(--cyan-dark) 82%,
+    #001015 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 55px rgba(2,217,249,0.45)) drop-shadow(0 8px 18px rgba(0,0,0,0.98));
+  animation: fadeInScale 1.2s var(--ease-out-expo) 0.1s both, glitch 9s 4s ease-in-out infinite;
+  margin-bottom: 26px;
+}
+
+.deco-mid {
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 18px;
+  animation: fadeIn 1s 0.6s both;
+}
+.deco-mid-arm {
+  height: 1px; width: 150px;
+  background: linear-gradient(90deg, transparent, var(--border-mid));
+}
+.deco-mid-arm.r { background: linear-gradient(90deg, var(--border-mid), transparent); }
+.deco-mid-gem {
+  width: 8px; height: 8px;
+  background: var(--cyan);
+  transform: rotate(45deg);
+  box-shadow: 0 0 12px var(--cyan-glow);
+}
+
+.pause-sub {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 8px;
+  text-transform: uppercase;
+  color: var(--text-cyan);
+  opacity: 0.8;
+  margin-bottom: 10px;
+  animation: fadeInUp 1s 0.7s both;
+}
+.pause-msg {
+  font-family: var(--font-ui);
+  font-size: 17px;
+  font-weight: 400;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  animation: fadeInUp 1s 0.85s both;
+  margin-bottom: 36px;
+}
+
+/* ── CONTENT CARD ── */
+.pause-card {
+  display: flex; align-items: center; gap: 0;
+  border: 1px solid var(--border-mid);
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(12px);
+  animation: fadeInUp 1s 1s both, pulseGlow 3s 2s ease-in-out infinite;
+  position: relative;
+  overflow: hidden;
+}
+.pause-card::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(90deg, rgba(2,217,249,0.04), transparent, rgba(2,217,249,0.04));
+  animation: shimmer 4s ease-in-out infinite;
+}
+.card-label {
+  padding: 14px 24px;
+  border-right: 1px solid var(--border);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.card-value {
+  padding: 14px 30px;
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: var(--cyan);
+  text-shadow: 0 0 14px var(--cyan-glow);
+}
+
+/* ── SOCIALS BAR ── */
+.socials-bar {
+  position: absolute;
+  bottom: 32px; left: 0; right: 0;
+  display: flex;
+  justify-content: center; align-items: center;
+  gap: 48px;
+  animation: fadeInUp 1.2s 1.2s both;
+}
+.social-chip {
+  display: flex; align-items: center; gap: 10px;
+}
+.social-chip-icon {
+  font-size: 14px; opacity: 0.6;
+}
+.social-chip-text {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-cyan);
+  letter-spacing: 1px;
+}
+
+/* ── RETURNING BADGE ── */
+.returning {
+  position: absolute;
+  top: 36px; right: 36px;
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 20px;
+  border: 1px solid var(--border);
+  background: rgba(0,0,0,0.7);
+  animation: fadeIn 1.5s 1.5s both, blink 2.5s 2s ease-in-out infinite;
+}
+.returning-dot {
+  width: 7px; height: 7px;
+  background: var(--cyan);
+  border-radius: 50%;
+  box-shadow: 0 0 10px var(--cyan-glow);
+  animation: blink 1.8s ease-in-out infinite;
+}
+.returning-text {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+</style>
+</head>
+<body class="overlay">
+
+<!-- Backgrounds -->
+<div class="bg bg-base"></div>
+<div class="bg-grid"></div>
+<div class="bg-rings">
+  <div class="ring ring-1"></div>
+  <div class="ring ring-2"></div>
+  <div class="ring ring-3"></div>
+</div>
+
+<!-- Borders & corners -->
+<div class="border-top"></div>
+<div class="border-bottom"></div>
+<div class="corners">
+  <div class="corner corner-tl"></div>
+  <div class="corner corner-tr"></div>
+  <div class="corner corner-bl"></div>
+  <div class="corner corner-br"></div>
+</div>
+
+<!-- Watermarks -->
+<div class="watermark-l" data-cfg="overlays.debut.tagline">SkyFA • FiveM Roleplay</div>
+<div class="watermark-r" data-cfg="overlays.debut.tagline">SkyFA • FiveM Roleplay</div>
+
+<!-- Returning indicator -->
+<div class="returning">
+  <div class="returning-dot"></div>
+  <span class="returning-text">De retour bientôt</span>
+</div>
+
+<!-- Center -->
+<div class="scene">
+  <div class="pause-eyebrow" data-cfg="streamer.pseudo">SkyFA</div>
+
+  <div class="pause-title" data-cfg="overlays.pause.titre">PAUSE</div>
+
+  <div class="deco-mid">
+    <div class="deco-mid-arm"></div>
+    <div class="deco-mid-gem"></div>
+    <div class="deco-mid-arm r"></div>
+  </div>
+
+  <div class="pause-sub" data-cfg="overlays.pause.sousTitre">De retour dans un instant…</div>
+  <div class="pause-msg" data-cfg="overlays.pause.message">Prends une pause, on revient vite !</div>
+
+  <div class="pause-card">
+    <div class="card-label">Contenu</div>
+    <div class="card-value" data-cfg="overlays.pause.contenuCarte">FiveM RP</div>
+  </div>
+</div>
+
+<!-- Socials bar -->
+<div class="socials-bar">
+  <div class="social-chip">
+    <span class="social-chip-icon">🎮</span>
+    <span class="social-chip-text" data-cfg="socials.discord">discord.gg/skyfa</span>
+  </div>
+  <div class="social-chip">
+    <span class="social-chip-icon">📺</span>
+    <span class="social-chip-text" data-cfg="socials.twitch">twitch.tv/skyfa</span>
+  </div>
+  <div class="social-chip">
+    <span class="social-chip-icon">🐦</span>
+    <span class="social-chip-text" data-cfg="socials.twitter">@skyfa</span>
+  </div>
+  <div class="social-chip">
+    <span class="social-chip-icon">▶</span>
+    <span class="social-chip-text" data-cfg="socials.youtube">youtube.com/@skyfa</span>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script src="shared.js"></script>
+</body>
+</html>

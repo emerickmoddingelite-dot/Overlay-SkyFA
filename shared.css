@@ -1,0 +1,227 @@
+/* ══════════════════════════════════════════════════════════════
+   SkyFA FiveM Stream Overlay — Styles Partagés
+   Thème : Cyberpunk / Néon Cyan — #02D9F9 × #02FFFF
+   ══════════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap');
+
+/* ── CSS VARIABLES ── */
+:root {
+  --cyan:        #02D9F9;
+  --cyan-bright: #02FFFF;
+  --cyan-mid:    #01b8d4;
+  --cyan-dark:   #017a8e;
+  --cyan-dim:    #014d5a;
+  --cyan-faint:  rgba(2,217,249,0.08);
+  --cyan-glow:   rgba(2,217,249,0.55);
+  --cyan-glow2:  rgba(2,255,255,0.35);
+
+  --accent:      #02FFFF;
+  --accent-dim:  rgba(2,255,255,0.15);
+
+  --bg-void:     #000c0f;
+  --bg-deep:     #010f14;
+  --bg-dark:     #011219;
+
+  --text-cyan:   #80eaf8;
+  --text-bright: #e0feff;
+  --text-dim:    rgba(2,217,249,0.4);
+
+  --border:      rgba(2,217,249,0.18);
+  --border-mid:  rgba(2,217,249,0.42);
+  --border-hi:   rgba(2,255,255,0.8);
+
+  --font-display: 'Orbitron', sans-serif;
+  --font-ui:      'Rajdhani', sans-serif;
+  --font-mono:    'Share Tech Mono', monospace;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out:   cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* ── RESET ── */
+*, *::before, *::after {
+  margin: 0; padding: 0;
+  box-sizing: border-box;
+}
+
+/* ── BASE OVERLAY BODY ── */
+body.overlay {
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+  background: transparent;
+  font-family: var(--font-ui);
+  position: relative;
+}
+
+/* ── GLOBAL BACKGROUND ── */
+.bg {
+  position: absolute; inset: 0;
+  pointer-events: none;
+}
+
+.bg-base {
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 50%, rgba(2,100,120,0.14) 0%, transparent 70%),
+    radial-gradient(ellipse 35% 35% at 10% 90%, rgba(2,217,249,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 35% 35% at 90% 10%, rgba(2,255,255,0.06) 0%, transparent 60%),
+    linear-gradient(160deg, rgba(0,0,0,0.98) 0%, rgba(1,12,18,0.94) 50%, rgba(0,0,0,0.99) 100%);
+}
+
+/* ── SCAN GRID ── */
+.bg-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(2,217,249,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(2,217,249,0.025) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+}
+
+/* ── BORDERS ── */
+.border-top {
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    var(--cyan-dim) 8%,
+    var(--cyan-mid) 30%,
+    var(--cyan) 50%,
+    var(--cyan-mid) 70%,
+    var(--cyan-dim) 92%,
+    transparent 100%
+  );
+  box-shadow: 0 0 20px var(--cyan-glow), 0 0 60px rgba(2,217,249,0.12);
+}
+
+.border-bottom {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    var(--cyan-dim) 8%,
+    var(--cyan-mid) 30%,
+    var(--cyan) 50%,
+    var(--cyan-mid) 70%,
+    var(--cyan-dim) 92%,
+    transparent 100%
+  );
+  box-shadow: 0 -4px 20px var(--cyan-glow), 0 -1px 50px rgba(2,217,249,0.08);
+}
+
+/* ── CORNER ORNAMENTS ── */
+.corners { position: absolute; inset: 0; pointer-events: none; }
+
+.corner {
+  position: absolute;
+  width: 90px; height: 90px;
+}
+.corner svg { width: 100%; height: 100%; }
+.corner-tl { top: 0; left: 0; }
+.corner-tr { top: 0; right: 0; transform: scaleX(-1); }
+.corner-bl { bottom: 0; left: 0; transform: scaleY(-1); }
+.corner-br { bottom: 0; right: 0; transform: scale(-1); }
+
+/* ── SIDE WATERMARK ── */
+.watermark-l, .watermark-r {
+  position: absolute;
+  top: 50%;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  white-space: nowrap;
+  pointer-events: none;
+}
+.watermark-l {
+  left: 32px;
+  transform: translateY(-50%) rotate(-90deg);
+}
+.watermark-r {
+  right: 32px;
+  transform: translateY(-50%) rotate(90deg);
+}
+
+/* ── PARTICLES ── */
+.particle {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: particleRise linear infinite;
+  opacity: 0;
+}
+@keyframes particleRise {
+  0%   { transform: translateY(1100px) scale(0); opacity: 0; }
+  8%   { opacity: 0.8; transform: translateY(950px) scale(1); }
+  92%  { opacity: 0.25; }
+  100% { transform: translateY(-60px) scale(0.4); opacity: 0; }
+}
+
+/* ── DECO LINE ── */
+.deco-line {
+  display: flex; align-items: center; justify-content: center;
+  gap: 14px;
+}
+.deco-line-arm {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border-mid));
+  flex: 1;
+  max-width: 220px;
+}
+.deco-line-arm.right {
+  background: linear-gradient(90deg, var(--border-mid), transparent);
+}
+.deco-line-gem {
+  width: 7px; height: 7px;
+  background: var(--cyan);
+  transform: rotate(45deg);
+  box-shadow: 0 0 12px var(--cyan-glow), 0 0 4px rgba(2,255,255,0.9);
+  flex-shrink: 0;
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeInScale {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 16px rgba(2,217,249,0.2), inset 0 0 8px rgba(2,217,249,0.05); }
+  50%       { box-shadow: 0 0 40px rgba(2,217,249,0.6), 0 0 80px rgba(2,217,249,0.12), inset 0 0 12px rgba(2,217,249,0.1); }
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.12; }
+}
+@keyframes scanline {
+  from { transform: translateY(-100%); }
+  to   { transform: translateY(100vh); }
+}
+@keyframes shimmer {
+  from { background-position: -400px 0; }
+  to   { background-position: 400px 0; }
+}
+@keyframes glitch {
+  0%, 90%, 100% { transform: translateX(0); clip-path: none; }
+  92% { transform: translateX(-3px); clip-path: inset(10% 0 80% 0); }
+  94% { transform: translateX(3px); clip-path: inset(60% 0 20% 0); }
+  96% { transform: translateX(0); clip-path: none; }
+}
+@keyframes dataStream {
+  from { transform: translateY(-100%); }
+  to   { transform: translateY(100%); }
+}
+@keyframes borderFlash {
+  0%, 85%, 100% { opacity: 1; }
+  90% { opacity: 0.3; }
+  95% { opacity: 0.8; }
+}

@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkyFA — Dashboard de Contrôle</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --c:#02D9F9;--cb:#02FFFF;--cd:#017a8e;--cdim:#014d5a;
+  --glow:rgba(2,217,249,0.5);
+  --bg:#000c0f;--bg2:#010f14;
+  --brd:rgba(2,217,249,0.16);--brdm:rgba(2,217,249,0.38);
+  --txt:#80eaf8;--txtb:#e0feff;--txtd:rgba(2,217,249,0.38);
+  --fd:'Orbitron',sans-serif;--fu:'Rajdhani',sans-serif;--fm:'Share Tech Mono',monospace;
+  --ease:cubic-bezier(0.16,1,0.3,1);
+  --panel-w:380px;--sidebar-w:52px;
+}
+html,body{height:100%;overflow:hidden}
+body{
+  background:var(--bg);color:var(--txt);font-family:var(--fu);
+  display:flex;flex-direction:column;
+  background-image:linear-gradient(rgba(2,217,249,0.013) 1px,transparent 1px),linear-gradient(90deg,rgba(2,217,249,0.013) 1px,transparent 1px);
+  background-size:60px 60px;
+}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--brdm);border-radius:2px}
+
+/* TOPBAR */
+.topbar{
+  flex-shrink:0;height:50px;
+  background:rgba(0,6,10,0.97);border-bottom:1px solid var(--brd);
+  display:flex;align-items:center;padding:0;gap:0;z-index:100;
+}
+.t-logo{
+  width:var(--sidebar-w);height:50px;border-right:1px solid var(--brd);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.t-logo-text{
+  font-family:var(--fd);font-size:10px;font-weight:900;letter-spacing:-1px;
+  background:linear-gradient(135deg,var(--c),var(--cb));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.t-brand{
+  padding:0 18px;border-right:1px solid var(--brd);flex-shrink:0;
+}
+.t-title{font-family:var(--fd);font-size:11px;font-weight:700;letter-spacing:2px;color:var(--txtb)}
+.t-sub{font-family:var(--fm);font-size:8px;letter-spacing:3px;color:var(--txtd);text-transform:uppercase;margin-top:1px}
+.t-tabs{flex:1;display:flex;align-items:center;padding:0 16px;gap:4px;overflow-x:auto}
+.t-tab{
+  padding:5px 14px;border:1px solid transparent;
+  font-family:var(--fm);font-size:9px;letter-spacing:3px;text-transform:uppercase;
+  color:var(--txtd);cursor:pointer;transition:all .2s;background:none;white-space:nowrap;
+}
+.t-tab:hover{color:var(--txt);border-color:var(--brd)}
+.t-tab.active{color:var(--c);border-color:var(--brdm);background:rgba(2,217,249,0.06)}
+.t-right{display:flex;align-items:center;gap:8px;padding:0 14px;flex-shrink:0}
+.t-clock{font-family:var(--fm);font-size:12px;color:var(--c);letter-spacing:2px;padding:4px 10px;border:1px solid var(--brd);background:rgba(0,0,0,0.4)}
+.t-status{display:flex;align-items:center;gap:6px;padding:4px 10px;border:1px solid var(--brd);background:rgba(0,0,0,0.3);font-family:var(--fm);font-size:8px;letter-spacing:3px;color:var(--txtd);text-transform:uppercase}
+.sdot{width:6px;height:6px;background:#02ff55;border-radius:50%;box-shadow:0 0 8px #00ff44;animation:blink 1.2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.12}}
+.t-btn{
+  display:flex;align-items:center;gap:7px;padding:6px 16px;
+  border:1px solid var(--brdm);background:rgba(2,217,249,0.08);
+  color:var(--c);font-family:var(--fd);font-size:9px;font-weight:700;
+  letter-spacing:3px;text-transform:uppercase;cursor:pointer;transition:all .2s;
+}
+.t-btn:hover{background:rgba(2,217,249,0.16);box-shadow:0 0 18px rgba(2,217,249,0.2)}
+
+/* WORKSPACE */
+.workspace{flex:1;display:flex;overflow:hidden}
+
+/* SIDEBAR */
+.sidebar{
+  width:var(--sidebar-w);flex-shrink:0;
+  background:rgba(0,6,10,0.98);border-right:1px solid var(--brd);
+  display:flex;flex-direction:column;align-items:center;padding:10px 0;gap:3px;
+}
+.nb{
+  width:38px;height:38px;border:1px solid transparent;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:15px;transition:all .2s;background:none;position:relative;
+}
+.nb:hover{border-color:var(--brd);background:rgba(2,217,249,0.05)}
+.nb.active{border-color:var(--brdm);background:rgba(2,217,249,0.1)}
+.nb.active::before{content:'';position:absolute;left:-1px;top:5px;bottom:5px;width:2px;background:var(--c);box-shadow:0 0 8px var(--glow)}
+.n-sep{width:26px;height:1px;background:var(--brd);margin:5px 0}
+
+/* CONTROL PANEL */
+.cp{
+  width:var(--panel-w);flex-shrink:0;
+  background:rgba(0,8,13,0.99);border-right:1px solid var(--brd);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.cp-hdr{
+  padding:12px 16px;border-bottom:1px solid var(--brd);
+  display:flex;align-items:center;gap:9px;flex-shrink:0;
+}
+.cp-dot{width:5px;height:5px;background:var(--c);border-radius:50%;box-shadow:0 0 8px var(--glow)}
+.cp-tit{font-family:var(--fd);font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--c)}
+.cp-body{flex:1;overflow-y:auto;padding:14px}
+
+/* SECTIONS */
+.sec{margin-bottom:18px}
+.sec-t{
+  font-family:var(--fm);font-size:7px;letter-spacing:5px;text-transform:uppercase;
+  color:var(--txtd);padding-bottom:7px;border-bottom:1px solid var(--brd);margin-bottom:10px;
+  display:flex;align-items:center;gap:7px;
+}
+.sec-t::before{content:'';width:2px;height:9px;background:var(--c);display:block;flex-shrink:0}
+
+/* FIELDS */
+.f{margin-bottom:9px}
+.fl{font-family:var(--fm);font-size:7px;letter-spacing:3px;text-transform:uppercase;color:var(--txtd);display:block;margin-bottom:3px}
+.fi{
+  width:100%;background:rgba(0,0,0,0.55);border:1px solid var(--brd);
+  color:var(--txtb);padding:6px 9px;font-family:var(--fm);font-size:11px;letter-spacing:1px;
+  outline:none;transition:border-color .2s,box-shadow .2s;
+}
+.fi:focus{border-color:var(--c);box-shadow:0 0 10px rgba(2,217,249,0.16)}
+.fi::placeholder{color:var(--txtd);font-size:9px}
+.fi[type="color"]{padding:2px 3px;height:30px;cursor:pointer}
+.fi[type="range"]{padding:0;height:26px;cursor:pointer;accent-color:var(--c)}
+.fi[type="checkbox"]{width:16px;height:16px;cursor:pointer;accent-color:var(--c)}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.r-col{display:grid;grid-template-columns:28px 1fr;gap:7px;align-items:center}
+.rng{display:flex;align-items:center;gap:7px}
+.rv{font-family:var(--fm);font-size:10px;color:var(--c);min-width:34px;text-align:right}
+.tog{display:flex;align-items:center;justify-content:space-between;padding:5px 0}
+.tog-l{font-family:var(--fm);font-size:8px;letter-spacing:2px;color:var(--txt);text-transform:uppercase}
+.sel{
+  width:100%;background:rgba(0,0,0,0.55);border:1px solid var(--brd);
+  color:var(--txtb);padding:6px 9px;font-family:var(--fm);font-size:11px;
+  outline:none;cursor:pointer;-webkit-appearance:none;appearance:none;
+}
+.sel:focus{border-color:var(--c)}
+option{background:#010f14}
+
+/* TABS */
+.tc{display:none}
+.tc.active{display:block}
+
+/* COLOR PREVIEW */
+.cprev{height:3px;border-radius:1px;margin-top:5px;transition:all .3s}
+
+/* PRESETS */
+.presets{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+.pb{
+  padding:4px 9px;border:1px solid var(--brd);
+  font-family:var(--fm);font-size:7px;letter-spacing:2px;text-transform:uppercase;
+  color:var(--txtd);cursor:pointer;background:rgba(0,0,0,0.3);
+  transition:all .2s;display:flex;align-items:center;gap:5px;
+}
+.pb:hover{border-color:var(--c);color:var(--c)}
+.ps{width:9px;height:9px;border-radius:2px;flex-shrink:0}
+
+/* ACTION BTNS */
+.ab{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:6px 12px;border:1px solid var(--brd);
+  font-family:var(--fm);font-size:8px;letter-spacing:3px;text-transform:uppercase;
+  color:var(--txtd);cursor:pointer;background:rgba(0,0,0,0.3);transition:all .2s;
+}
+.ab:hover{border-color:var(--c);color:var(--c)}
+.ab-full{width:100%;justify-content:center;padding:8px}
+
+/* PREVIEW */
+.pv{flex:1;display:flex;flex-direction:column;overflow:hidden;background:rgba(0,4,6,0.5)}
+.pv-bar{
+  flex-shrink:0;padding:8px 14px;border-bottom:1px solid var(--brd);
+  display:flex;align-items:center;gap:8px;background:rgba(0,6,10,0.92);
+}
+.pv-lbl{font-family:var(--fm);font-size:8px;letter-spacing:4px;color:var(--txtd);text-transform:uppercase;flex-shrink:0}
+.ov-tabs{display:flex;gap:5px;flex:1}
+.ot{
+  padding:5px 12px;border:1px solid var(--brd);
+  font-family:var(--fm);font-size:8px;letter-spacing:3px;text-transform:uppercase;
+  color:var(--txtd);cursor:pointer;transition:all .2s;background:none;
+}
+.ot:hover{color:var(--txt);border-color:var(--brdm)}
+.ot.active{color:var(--c);border-color:var(--c);background:rgba(2,217,249,0.07)}
+.pv-actions{display:flex;gap:6px;flex-shrink:0}
+.pa{
+  padding:5px 10px;border:1px solid var(--brd);
+  font-family:var(--fm);font-size:7px;letter-spacing:3px;text-transform:uppercase;
+  color:var(--txtd);cursor:pointer;transition:all .2s;background:rgba(0,0,0,0.3);
+}
+.pa:hover{border-color:var(--c);color:var(--c)}
+.pv-wrap{
+  flex:1;display:flex;align-items:center;justify-content:center;
+  overflow:hidden;padding:18px;position:relative;
+}
+.pv-bg{
+  position:absolute;inset:0;
+  background:repeating-linear-gradient(45deg,rgba(255,255,255,0.012) 0,rgba(255,255,255,0.012) 1px,transparent 1px,transparent 8px),
+             repeating-linear-gradient(-45deg,rgba(255,255,255,0.012) 0,rgba(255,255,255,0.012) 1px,transparent 1px,transparent 8px);
+}
+.pv-info{position:absolute;bottom:8px;right:14px;font-family:var(--fm);font-size:7px;letter-spacing:3px;color:var(--txtd)}
+.ifc{position:relative;box-shadow:0 0 40px rgba(2,217,249,0.14),0 0 0 1px var(--brd);transition:all .3s var(--ease);flex-shrink:0}
+.ifc iframe{display:block;border:none;transform-origin:top left}
+
+/* LINKS MODAL */
+.modal{position:fixed;inset:0;z-index:500;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.88);backdrop-filter:blur(16px)}
+.modal.open{display:flex}
+.mbox{
+  background:rgba(0,8,12,0.99);border:1px solid var(--brdm);
+  width:780px;max-width:95vw;max-height:90vh;overflow-y:auto;position:relative;
+}
+.mbox::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--c),transparent);box-shadow:0 0 12px var(--glow)}
+.m-hdr{padding:16px 22px;border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between}
+.m-tit{font-family:var(--fd);font-size:10px;font-weight:700;letter-spacing:3px;color:var(--c);text-transform:uppercase}
+.m-close{width:28px;height:28px;border:1px solid var(--brd);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--txtd);font-size:13px;background:none;transition:all .2s}
+.m-close:hover{border-color:var(--c);color:var(--c)}
+.m-body{padding:22px}
+.lrow{margin-bottom:9px;border:1px solid var(--brd);background:rgba(0,0,0,0.35)}
+.lr-hdr{padding:7px 13px;border-bottom:1px solid var(--brd);display:flex;align-items:center;gap:9px}
+.li{font-size:13px}.ln{font-family:var(--fd);font-size:8px;letter-spacing:2px;color:var(--txt);text-transform:uppercase}
+.lu-wrap{padding:9px 13px;display:flex;align-items:center;gap:9px}
+.lu{flex:1;font-family:var(--fm);font-size:9px;color:var(--c);word-break:break-all;line-height:1.5}
+.cpbtn{
+  flex-shrink:0;padding:5px 12px;border:1px solid var(--brdm);
+  font-family:var(--fm);font-size:7px;letter-spacing:3px;text-transform:uppercase;
+  color:var(--c);cursor:pointer;background:rgba(2,217,249,0.06);transition:all .2s;white-space:nowrap;
+}
+.cpbtn:hover{background:rgba(2,217,249,0.15)}
+.cpbtn.done{color:#02ff55;border-color:#02ff55}
+.m-note{margin-top:14px;padding:13px;border:1px solid var(--brd);background:rgba(0,0,0,0.3);font-family:var(--fm);font-size:10px;color:var(--txtd);line-height:1.8}
+.m-note code{color:var(--c);background:rgba(2,217,249,0.08);padding:1px 5px}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="t-logo"><span class="t-logo-text">SF</span></div>
+  <div class="t-brand">
+    <div class="t-title">SkyFA Dashboard</div>
+    <div class="t-sub">FiveM Overlay Control v2</div>
+  </div>
+  <div class="t-tabs">
+    <button class="t-tab active" onclick="switchTab('textes',this)">Textes</button>
+    <button class="t-tab" onclick="switchTab('socials',this)">Socials</button>
+    <button class="t-tab" onclick="switchTab('couleurs',this)">Couleurs</button>
+    <button class="t-tab" onclick="switchTab('typo',this)">Typographie</button>
+    <button class="t-tab" onclick="switchTab('effets',this)">Effets</button>
+    <button class="t-tab" onclick="switchTab('avance',this)">Avancé</button>
+  </div>
+  <div class="t-right">
+    <div class="t-clock" id="dash-clock">--:--:--</div>
+    <div class="t-status"><div class="sdot"></div>Actif</div>
+    <button class="t-btn" onclick="openLinks()">⚡ Liens OBS</button>
+  </div>
+</div>
+
+<!-- WORKSPACE -->
+<div class="workspace">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <button class="nb active" title="Début de Live" onclick="selectOv('debut',this)">🚀</button>
+    <button class="nb" title="En Jeu HUD" onclick="selectOv('enjeu',this)">🎮</button>
+    <button class="nb" title="Pause" onclick="selectOv('pause',this)">⏸</button>
+    <button class="nb" title="Fin de Live" onclick="selectOv('fin',this)">🌐</button>
+    <div class="n-sep"></div>
+    <button class="nb" title="Dashboard" onclick="selectOv('dashboard',this)">⚙️</button>
+  </div>
+
+  <!-- CONTROL PANEL -->
+  <div class="cp">
+    <div class="cp-hdr">
+      <div class="cp-dot"></div>
+      <span class="cp-tit" id="cp-tit">Textes &amp; Identité</span>
+    </div>
+    <div class="cp-body">
+
+      <!-- TAB TEXTES -->
+      <div class="tc active" id="tab-textes">
+        <div class="sec">
+          <div class="sec-t">Identité Streamer</div>
+          <div class="f"><label class="fl">Pseudo</label><input class="fi" id="pseudo" value="SkyFA" oninput="sync()"></div>
+          <div class="f"><label class="fl">Serveur FiveM</label><input class="fi" id="serveur" value="SkyFA — FiveM RP" oninput="sync()"></div>
+          <div class="r2">
+            <div class="f"><label class="fl">Rôle</label><input class="fi" id="role" value="Streamer / Admin" oninput="sync()"></div>
+            <div class="f"><label class="fl">Contenu</label><input class="fi" id="contenu" value="Roleplay FiveM" oninput="sync()"></div>
+          </div>
+          <div class="f"><label class="fl">Organisation</label><input class="fi" id="organisation" value="SkyFA Community" oninput="sync()"></div>
+        </div>
+        <div class="sec">
+          <div class="sec-t">Overlay Début</div>
+          <div class="f"><label class="fl">Titre principal</label><input class="fi" id="debut_titre" value="LE LIVE COMMENCE" oninput="sync()"></div>
+          <div class="f"><label class="fl">Sous-titre</label><input class="fi" id="debut_sousTitre" value="Branche-toi, le RP commence" oninput="sync()"></div>
+          <div class="r2">
+            <div class="f"><label class="fl">Badge Live</label><input class="fi" id="debut_badge" value="EN DIRECT" oninput="sync()"></div>
+            <div class="f"><label class="fl">Tagline</label><input class="fi" id="debut_tagline" value="SkyFA • FiveM" oninput="sync()"></div>
+          </div>
+        </div>
+        <div class="sec">
+          <div class="sec-t">Overlay En Jeu</div>
+          <div class="f"><label class="fl">Titre objectif</label><input class="fi" id="enjeu_obj_titre" value="Session en cours" oninput="sync()"></div>
+          <div class="f"><label class="fl">Objectif ligne 1</label><input class="fi" id="enjeu_obj1" value="Roleplay FiveM" oninput="sync()"></div>
+          <div class="f"><label class="fl">Objectif ligne 2</label><input class="fi" id="enjeu_obj2" value="Serveur : SkyFA RP" oninput="sync()"></div>
+          <div class="r2">
+            <div class="f"><label class="fl">Commande 1</label><input class="fi" id="enjeu_cmd1" value="!discord" oninput="sync()"></div>
+            <div class="f"><label class="fl">Commande 2</label><input class="fi" id="enjeu_cmd2" value="!serveur" oninput="sync()"></div>
+          </div>
+          <div class="r2">
+            <div class="f"><label class="fl">Commande 3</label><input class="fi" id="enjeu_cmd3" value="!social" oninput="sync()"></div>
+            <div class="f"><label class="fl">Commande 4</label><input class="fi" id="enjeu_cmd4" value="!commandes" oninput="sync()"></div>
+          </div>
+        </div>
+        <div class="sec">
+          <div class="sec-t">Overlay Pause</div>
+          <div class="f"><label class="fl">Titre Pause</label><input class="fi" id="pause_titre" value="PAUSE" oninput="sync()"></div>
+          <div class="f"><label class="fl">Sous-titre</label><input class="fi" id="pause_sousTitre" value="De retour dans un instant…" oninput="sync()"></div>
+          <div class="f"><label class="fl">Message</label><input class="fi" id="pause_message" value="Prends une pause, on revient vite !" oninput="sync()"></div>
+          <div class="f"><label class="fl">Contenu carte</label><input class="fi" id="pause_contenu" value="FiveM RP" oninput="sync()"></div>
+        </div>
+        <div class="sec">
+          <div class="sec-t">Overlay Fin de Live</div>
+          <div class="f"><label class="fl">Titre</label><input class="fi" id="fin_titre" value="À BIENTÔT" oninput="sync()"></div>
+          <div class="f"><label class="fl">Sous-titre</label><input class="fi" id="fin_sousTitre" value="Merci d'avoir regardé le live" oninput="sync()"></div>
+          <div class="f"><label class="fl">Message</label><input class="fi" id="fin_message" value="On se retrouve très vite sur le serveur" oninput="sync()"></div>
+          <div class="f"><label class="fl">CTA (appel à l'action)</label><input class="fi" id="fin_cta" value="Rejoins le Discord SkyFA !" oninput="sync()"></div>
+        </div>
+      </div>
+
+      <!-- TAB SOCIALS -->
+      <div class="tc" id="tab-socials">
+        <div class="sec">
+          <div class="sec-t">Réseaux Sociaux</div>
+          <div class="f"><label class="fl">📺 Twitch</label><input class="fi" id="twitch" value="twitch.tv/skyfa" placeholder="twitch.tv/..." oninput="sync()"></div>
+          <div class="f"><label class="fl">🎮 Discord</label><input class="fi" id="discord" value="discord.gg/skyfa" placeholder="discord.gg/..." oninput="sync()"></div>
+          <div class="f"><label class="fl">🐦 Twitter / X</label><input class="fi" id="twitter" value="@skyfa" placeholder="@pseudo" oninput="sync()"></div>
+          <div class="f"><label class="fl">▶ YouTube</label><input class="fi" id="youtube" value="youtube.com/@skyfa" placeholder="youtube.com/@..." oninput="sync()"></div>
+          <div class="f"><label class="fl">TikTok (vide = masqué)</label><input class="fi" id="tiktok" value="" placeholder="@pseudo" oninput="sync()"></div>
+        </div>
+      </div>
+
+      <!-- TAB COULEURS -->
+      <div class="tc" id="tab-couleurs">
+        <div class="sec">
+          <div class="sec-t">Presets rapides</div>
+          <div class="presets" id="color-presets"></div>
+        </div>
+        <div class="sec">
+          <div class="sec-t">Palette principale</div>
+          <div class="f">
+            <label class="fl">Couleur principale</label>
+            <div class="r-col"><input class="fi" type="color" id="t_cyan" value="#02D9F9" oninput="syncColor()"><input class="fi" id="t_cyan_hex" value="#02D9F9" oninput="syncColorHex('t_cyan','t_cyan_hex')"></div>
+          </div>
+          <div class="f">
+            <label class="fl">Couleur vive (accents)</label>
+            <div class="r-col"><input class="fi" type="color" id="t_cyanBright" value="#02FFFF" oninput="syncColor()"><input class="fi" id="t_cyanBright_hex" value="#02FFFF" oninput="syncColorHex('t_cyanBright','t_cyanBright_hex')"></div>
+          </div>
+          <div class="f">
+            <label class="fl">Couleur foncée (ombres)</label>
+            <div class="r-col"><input class="fi" type="color" id="t_cyanDark" value="#017a8e" oninput="syncColor()"><input class="fi" id="t_cyanDark_hex" value="#017a8e" oninput="syncColorHex('t_cyanDark','t_cyanDark_hex')"></div>
+          </div>
+          <div class="f">
+            <label class="fl">Couleur très foncée (dim)</label>
+            <div class="r-col"><input class="fi" type="color" id="t_cyanDim" value="#014d5a" oninput="syncColor()"><input class="fi" id="t_cyanDim_hex" value="#014d5a" oninput="syncColorHex('t_cyanDim','t_cyanDim_hex')"></div>
+          </div>
+          <div class="cprev" id="cprev"></div>
+        </div>
+        <div class="sec">
+          <div class="sec-t">Intensités</div>
+          <div class="f"><label class="fl">Intensité du glow</label><div class="rng"><input class="fi" type="range" id="t_glowIntensity" min="0" max="1" step="0.05" value="0.55" oninput="syncRange('t_glowIntensity','rv_glow');sync()"><span class="rv" id="rv_glow">0.55</span></div></div>
+          <div class="f"><label class="fl">Opacité bordures</label><div class="rng"><input class="fi" type="range" id="t_borderOpacity" min="0" max="2" step="0.1" value="1" oninput="syncRange('t_borderOpacity','rv_brd');sync()"><span class="rv" id="rv_brd">1.0</span></div></div>
+          <div class="f"><label class="fl">Opacité du fond</label><div class="rng"><input class="fi" type="range" id="t_bgOpacity" min="0" max="1" step="0.05" value="0.95" oninput="syncRange('t_bgOpacity','rv_bg');sync()"><span class="rv" id="rv_bg">0.95</span></div></div>
+        </div>
+      </div>
+
+      <!-- TAB TYPO -->
+      <div class="tc" id="tab-typo">
+        <div class="sec">
+          <div class="sec-t">Police des titres</div>
+          <div class="f">
+            <label class="fl">Font Display</label>
+            <select class="fi sel" id="t_fontDisplay" onchange="syncFont();sync()">
+              <option value="Orbitron" selected>Orbitron (défaut)</option>
+              <option value="Rajdhani">Rajdhani</option>
+              <option value="Share Tech Mono">Share Tech Mono</option>
+              <option value="Exo 2">Exo 2</option>
+              <option value="Audiowide">Audiowide</option>
+              <option value="Russo One">Russo One</option>
+              <option value="Aldrich">Aldrich</option>
+              <option value="Chakra Petch">Chakra Petch</option>
+              <option value="Jura">Jura</option>
+              <option value="Quantico">Quantico</option>
+              <option value="Bebas Neue">Bebas Neue</option>
+              <option value="Black Ops One">Black Ops One</option>
+            </select>
+          </div>
+          <div class="f">
+            <label class="fl">Aperçu</label>
+            <div id="font-preview" style="padding:12px;border:1px solid var(--brd);background:rgba(0,0,0,0.4);font-size:22px;font-weight:700;letter-spacing:3px;color:var(--c);text-align:center">SkyFA LIVE</div>
+          </div>
+        </div>
+        <div class="sec">
+          <div class="sec-t">Taille</div>
+          <div class="f"><label class="fl">Échelle des textes</label><div class="rng"><input class="fi" type="range" id="t_fontSize" min="0.7" max="1.4" step="0.05" value="1" oninput="syncRange('t_fontSize','rv_fs');sync()"><span class="rv" id="rv_fs">1.0×</span></div></div>
+        </div>
+      </div>
+
+      <!-- TAB EFFETS -->
+      <div class="tc" id="tab-effets">
+        <div class="sec">
+          <div class="sec-t">Particules</div>
+          <div class="tog"><span class="tog-l">Activer les particules</span><input class="fi" type="checkbox" id="t_particles" checked onchange="sync()"></div>
+          <div class="f"><label class="fl">Nombre de particules</label><div class="rng"><input class="fi" type="range" id="t_particleCount" min="0" max="120" step="5" value="50" oninput="syncRange('t_particleCount','rv_pc');sync()"><span class="rv" id="rv_pc">50</span></div></div>
+        </div>
+        <div class="sec">
+          <div class="sec-t">Animations</div>
+          <div class="f"><label class="fl">Vitesse scanline (secondes)</label><div class="rng"><input class="fi" type="range" id="t_scanlineSpeed" min="2" max="20" step="0.5" value="7" oninput="syncRange('t_scanlineSpeed','rv_sl');sync()"><span class="rv" id="rv_sl">7s</span></div></div>
+          <div class="f"><label class="fl">Vitesse animations ×</label><div class="rng"><input class="fi" type="range" id="t_animSpeed" min="0.3" max="3" step="0.1" value="1" oninput="syncRange('t_animSpeed','rv_as');sync()"><span class="rv" id="rv_as">1.0×</span></div></div>
+        </div>
+        <div class="sec">
+          <div class="sec-t">Éléments visuels</div>
+          <div class="tog"><span class="tog-l">Grille de fond visible</span><input class="fi" type="checkbox" id="t_gridVisible" checked onchange="sync()"></div>
+        </div>
+      </div>
+
+      <!-- TAB AVANCÉ -->
+      <div class="tc" id="tab-avance">
+        <div class="sec">
+          <div class="sec-t">URL de l'overlay actuel</div>
+          <div class="f"><textarea class="fi" id="current-url" rows="5" style="resize:vertical;font-size:8px;line-height:1.6;letter-spacing:0" readonly></textarea></div>
+          <div style="display:flex;gap:7px;margin-top:7px">
+            <button class="ab" onclick="copyCurrentUrl()">📋 Copier</button>
+            <button class="ab" onclick="openInTab()">↗ Ouvrir</button>
+          </div>
+        </div>
+        <div class="sec">
+          <div class="sec-t">Config JSON</div>
+          <div class="f"><button class="ab ab-full" onclick="exportConfig()">💾 Exporter config.json</button></div>
+          <input type="file" accept=".json" id="import-file" style="display:none" onchange="importConfig(this)">
+          <div class="f"><button class="ab ab-full" onclick="document.getElementById('import-file').click()">📂 Importer config.json</button></div>
+        </div>
+        <div class="sec">
+          <div class="sec-t">Danger</div>
+          <button class="ab ab-full" style="border-color:#ff3355;color:#ff3355" onclick="resetConfig()">⚠ Réinitialiser tout</button>
+        </div>
+      </div>
+
+    </div><!-- /cp-body -->
+  </div><!-- /cp -->
+
+  <!-- PREVIEW -->
+  <div class="pv">
+    <div class="pv-bar">
+      <span class="pv-lbl">Aperçu :</span>
+      <div class="ov-tabs">
+        <button class="ot active" onclick="selectOv('debut',null,this)">🚀 Début</button>
+        <button class="ot" onclick="selectOv('enjeu',null,this)">🎮 En Jeu</button>
+        <button class="ot" onclick="selectOv('pause',null,this)">⏸ Pause</button>
+        <button class="ot" onclick="selectOv('fin',null,this)">🌐 Fin</button>
+      </div>
+      <div class="pv-actions">
+        <button class="pa" onclick="zoomIn()">＋</button>
+        <button class="pa" onclick="zoomOut()">－</button>
+        <button class="pa" onclick="fitPreview()">⊡ Fit</button>
+        <button class="pa" onclick="refreshPreview()">↺</button>
+      </div>
+    </div>
+    <div class="pv-wrap" id="pv-wrap">
+      <div class="pv-bg"></div>
+      <div class="ifc" id="ifc">
+        <iframe id="pv-iframe" width="1920" height="1080"></iframe>
+      </div>
+      <div class="pv-info" id="pv-info">1920 × 1080 — 100%</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- LINKS MODAL -->
+<div class="modal" id="modal">
+  <div class="mbox">
+    <div class="m-hdr">
+      <span class="m-tit">⚡ Liens OBS — Tous les Overlays</span>
+      <button class="m-close" onclick="closeLinks()">✕</button>
+    </div>
+    <div class="m-body" id="m-body"></div>
+  </div>
+</div>
+
+<script>
+/* STATE */
+let curOv='debut', scale=1, syncT=null;
+
+const OVS=[
+  {id:'debut',  file:'overlay_debut.html', icon:'🚀',label:'Début de Live'},
+  {id:'enjeu',  file:'overlay_enjeu.html', icon:'🎮',label:'En Jeu (HUD)'},
+  {id:'pause',  file:'overlay_pause.html', icon:'⏸',label:'Pause'},
+  {id:'fin',    file:'overlay_fin.html',   icon:'🌐',label:'Fin de Live'},
+  {id:'dashboard',file:'dashboard.html',  icon:'⚙️',label:'Dashboard'},
+];
+
+const PRESETS=[
+  {name:'Cyan SkyFA',  c:'#02D9F9',cb:'#02FFFF',cd:'#017a8e',cdim:'#014d5a'},
+  {name:'Vert Matrix', c:'#00ff41',cb:'#39ff14',cd:'#006615',cdim:'#003309'},
+  {name:'Rose Néon',   c:'#ff2d78',cb:'#ff6eb4',cd:'#8b0040',cdim:'#4a0022'},
+  {name:'Orange Feu',  c:'#ff6200',cb:'#ff9d00',cd:'#7a2e00',cdim:'#3d1700'},
+  {name:'Violet Pro',  c:'#9060ff',cb:'#c09aff',cd:'#3a1280',cdim:'#1e0940'},
+  {name:'Blanc Glace', c:'#b0d8ff',cb:'#e0f4ff',cd:'#4a7aa0',cdim:'#1a3550'},
+  {name:'Doré Luxe',   c:'#ffd700',cb:'#fffacd',cd:'#8b6914',cdim:'#4a3800'},
+  {name:'Rouge Sang',  c:'#ff1a1a',cb:'#ff6666',cd:'#7a0000',cdim:'#3d0000'},
+  {name:'Turquoise',   c:'#00c9b1',cb:'#00ffea',cd:'#007a6c',cdim:'#003d36'},
+  {name:'Bleu Électro',c:'#0080ff',cb:'#40b0ff',cd:'#003a7a',cdim:'#001a3d'},
+];
+
+/* CLOCK */
+setInterval(()=>{const e=document.getElementById('dash-clock');if(e)e.textContent=new Date().toLocaleTimeString('fr-FR')},1000);
+document.getElementById('dash-clock').textContent=new Date().toLocaleTimeString('fr-FR');
+
+/* INIT */
+function initPresets(){
+  const wrap=document.getElementById('color-presets');
+  PRESETS.forEach(p=>{
+    const b=document.createElement('button');
+    b.className='pb';
+    b.innerHTML=`<span class="ps" style="background:${p.c}"></span>${p.name}`;
+    b.onclick=()=>{setC('t_cyan',p.c);setC('t_cyanBright',p.cb);setC('t_cyanDark',p.cd);setC('t_cyanDim',p.cdim);updateCprev();sync()};
+    wrap.appendChild(b);
+  });
+}
+function setC(id,val){
+  const e=document.getElementById(id),h=document.getElementById(id+'_hex');
+  if(e)e.value=val; if(h)h.value=val;
+}
+
+/* TAB SWITCH */
+const TITLES={textes:'Textes & Identité',socials:'Réseaux Sociaux',couleurs:'Couleurs & Thème',typo:'Typographie',effets:'Effets & Animations',avance:'Paramètres Avancés'};
+function switchTab(name,btn){
+  document.querySelectorAll('.tc').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.t-tab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+name)?.classList.add('active');
+  if(btn)btn.classList.add('active');
+  const e=document.getElementById('cp-tit');if(e)e.textContent=TITLES[name]||name;
+}
+
+/* OVERLAY SELECT */
+function selectOv(id,navBtn,tabBtn){
+  curOv=id;
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
+  const nbIdx={debut:0,enjeu:1,pause:2,fin:3,dashboard:4}[id];
+  if(navBtn)navBtn.classList.add('active');
+  else document.querySelectorAll('.nb')[nbIdx]?.classList.add('active');
+  document.querySelectorAll('.ot').forEach(b=>b.classList.remove('active'));
+  const otIdx={debut:0,enjeu:1,pause:2,fin:3}[id];
+  if(tabBtn)tabBtn.classList.add('active');
+  else if(otIdx!==undefined)document.querySelectorAll('.ot')[otIdx]?.classList.add('active');
+  refreshPreview();
+}
+
+/* PARAMS */
+const gv=id=>document.getElementById(id)?.value??'';
+const gc=id=>document.getElementById(id)?.checked;
+const gr=id=>document.getElementById(id)?.value;
+
+function buildParams(){
+  const p=new URLSearchParams();
+  ['pseudo','serveur','role','contenu','organisation',
+   'twitch','discord','twitter','youtube','tiktok',
+   'debut_titre','debut_sousTitre','debut_tagline','debut_badge',
+   'enjeu_obj_titre','enjeu_obj1','enjeu_obj2',
+   'enjeu_cmd1','enjeu_cmd2','enjeu_cmd3','enjeu_cmd4',
+   'pause_titre','pause_sousTitre','pause_message','pause_contenu',
+   'fin_titre','fin_sousTitre','fin_message','fin_cta'
+  ].forEach(f=>{const v=gv(f);if(v)p.set(f,v)});
+  p.set('t_cyan',gv('t_cyan'));p.set('t_cyanBright',gv('t_cyanBright'));
+  p.set('t_cyanDark',gv('t_cyanDark'));p.set('t_cyanDim',gv('t_cyanDim'));
+  p.set('t_glowIntensity',gr('t_glowIntensity'));
+  p.set('t_borderOpacity',gr('t_borderOpacity'));
+  p.set('t_bgOpacity',gr('t_bgOpacity'));
+  p.set('t_fontDisplay',gv('t_fontDisplay'));
+  p.set('t_fontSize',gr('t_fontSize'));
+  p.set('t_particles',gc('t_particles'));
+  p.set('t_particleCount',gr('t_particleCount'));
+  p.set('t_scanlineSpeed',gr('t_scanlineSpeed'));
+  p.set('t_animSpeed',gr('t_animSpeed'));
+  p.set('t_gridVisible',gc('t_gridVisible'));
+  return p.toString();
+}
+
+function buildUrl(id){
+  const base=window.location.href.replace('dashboard.html','');
+  const f=OVS.find(o=>o.id===id)?.file||'overlay_debut.html';
+  return `${base}${f}?${buildParams()}`;
+}
+
+/* SYNC */
+function sync(){
+  clearTimeout(syncT);
+  syncT=setTimeout(()=>{refreshPreview();updateAdvUrl();updateCprev();},200);
+}
+function refreshPreview(){document.getElementById('pv-iframe').src=buildUrl(curOv)}
+function updateAdvUrl(){const e=document.getElementById('current-url');if(e)e.value=buildUrl(curOv)}
+function updateCprev(){
+  const b=document.getElementById('cprev'),c=gv('t_cyan'),cb=gv('t_cyanBright');
+  if(b){b.style.background=`linear-gradient(90deg,${c},${cb},${c})`;b.style.boxShadow=`0 0 10px ${c}88`}
+  const fp=document.getElementById('font-preview');
+  if(fp){fp.style.color=c;fp.style.textShadow=`0 0 14px ${c}99`}
+}
+
+/* COLOR SYNC */
+function syncColor(){
+  ['t_cyan','t_cyanBright','t_cyanDark','t_cyanDim'].forEach(id=>{
+    const pk=document.getElementById(id),hx=document.getElementById(id+'_hex');
+    if(pk&&hx)hx.value=pk.value;
+  });
+  sync();
+}
+function syncColorHex(pid,hid){
+  const v=document.getElementById(hid)?.value;
+  if(!v||!/^#[0-9a-f]{6}$/i.test(v))return;
+  const pk=document.getElementById(pid);if(pk)pk.value=v;
+  sync();
+}
+
+/* RANGE SYNC */
+function syncRange(rid,did){
+  const v=parseFloat(document.getElementById(rid)?.value||0),e=document.getElementById(did);
+  if(!e)return;
+  if(rid==='t_scanlineSpeed')e.textContent=v+'s';
+  else if(rid==='t_particleCount')e.textContent=v;
+  else if(['t_fontSize','t_animSpeed'].includes(rid))e.textContent=v.toFixed(1)+'×';
+  else e.textContent=v.toFixed(2);
+}
+
+/* FONT SYNC */
+function syncFont(){
+  const f=gv('t_fontDisplay');
+  if(!document.querySelector(`link[data-font="${f}"]`)){
+    const l=document.createElement('link');l.rel='stylesheet';l.dataset.font=f;
+    l.href=`https://fonts.googleapis.com/css2?family=${encodeURIComponent(f)}:wght@400;700;900&display=swap`;
+    document.head.appendChild(l);
+  }
+  const fp=document.getElementById('font-preview');if(fp)fp.style.fontFamily=`'${f}',sans-serif`;
+}
+
+/* ZOOM */
+function applyScale(){
+  const c=document.getElementById('ifc'),fr=document.getElementById('pv-iframe');
+  fr.style.transform=`scale(${scale})`;fr.style.transformOrigin='top left';
+  c.style.width=(1920*scale)+'px';c.style.height=(1080*scale)+'px';
+  document.getElementById('pv-info').textContent=`1920 × 1080 — ${Math.round(scale*100)}%`;
+}
+function zoomIn(){scale=Math.min(scale+0.05,2);applyScale()}
+function zoomOut(){scale=Math.max(scale-0.05,0.1);applyScale()}
+function fitPreview(){
+  const w=document.getElementById('pv-wrap');
+  scale=Math.min((w.clientWidth-36)/1920,(w.clientHeight-36)/1080);
+  applyScale();
+}
+
+/* LINKS MODAL */
+function openLinks(){
+  const base=window.location.href.replace('dashboard.html','');
+  const ps=buildParams();
+  document.getElementById('m-body').innerHTML=
+    OVS.filter(o=>o.id!=='dashboard').map(o=>{
+      const url=`${base}${o.file}?${ps}`;
+      return `<div class="lrow">
+        <div class="lr-hdr"><span class="li">${o.icon}</span><span class="ln">${o.label}</span></div>
+        <div class="lu-wrap"><div class="lu">${url}</div>
+        <button class="cpbtn" onclick="cpLink(this,'${encodeURIComponent(url)}')">COPIER</button></div>
+      </div>`;
+    }).join('')+
+    `<div class="m-note"><strong style="color:var(--c)">OBS :</strong><br>
+    1. Copie l'URL → OBS → <code>Ajouter source</code> → <code>Navigateur</code><br>
+    2. Résolution : <code>1920 × 1080</code><br>
+    3. <code>overlay_enjeu</code> : activer <code>Fond transparent</code><br>
+    4. Toute ta config est encodée dans l'URL — aucun fichier à modifier</div>`;
+  document.getElementById('modal').classList.add('open');
+}
+function closeLinks(){document.getElementById('modal').classList.remove('open')}
+function cpLink(btn,enc){
+  navigator.clipboard.writeText(decodeURIComponent(enc));
+  btn.textContent='✓';btn.classList.add('done');
+  setTimeout(()=>{btn.textContent='COPIER';btn.classList.remove('done')},2000);
+}
+
+/* ADVANCED */
+function copyCurrentUrl(){const u=document.getElementById('current-url')?.value;if(u)navigator.clipboard.writeText(u)}
+function openInTab(){window.open(buildUrl(curOv),'_blank')}
+
+function exportConfig(){
+  const k=['pseudo','serveur','role','contenu','organisation','twitch','discord','twitter','youtube','tiktok',
+    'debut_titre','debut_sousTitre','debut_tagline','debut_badge',
+    'enjeu_obj_titre','enjeu_obj1','enjeu_obj2','enjeu_cmd1','enjeu_cmd2','enjeu_cmd3','enjeu_cmd4',
+    'pause_titre','pause_sousTitre','pause_message','pause_contenu',
+    'fin_titre','fin_sousTitre','fin_message','fin_cta',
+    't_cyan','t_cyanBright','t_cyanDark','t_cyanDim',
+    't_glowIntensity','t_borderOpacity','t_bgOpacity','t_fontDisplay','t_fontSize',
+    't_particleCount','t_scanlineSpeed','t_animSpeed'];
+  const bk=['t_particles','t_gridVisible'];
+  const cfg={};
+  k.forEach(id=>{cfg[id]=gv(id)});
+  bk.forEach(id=>{cfg[id]=gc(id)});
+  const blob=new Blob([JSON.stringify(cfg,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='skyfa_config.json';a.click();
+}
+function importConfig(input){
+  const f=input.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=e=>{
+    try{
+      const cfg=JSON.parse(e.target.result);
+      Object.keys(cfg).forEach(k=>{
+        const el=document.getElementById(k);if(!el)return;
+        if(el.type==='checkbox')el.checked=cfg[k];
+        else el.value=cfg[k];
+        if(k.match(/^t_cyan/)){const h=document.getElementById(k+'_hex');if(h)h.value=cfg[k]}
+      });
+      sync();syncFont();updateCprev();
+    }catch(e){alert('Erreur de lecture JSON')}
+  };
+  r.readAsText(f);
+}
+function resetConfig(){if(confirm('Réinitialiser toutes les valeurs ?'))location.reload()}
+
+/* BOOT */
+window.addEventListener('DOMContentLoaded',()=>{
+  initPresets();
+  setTimeout(()=>{fitPreview();sync();updateAdvUrl();updateCprev();},100);
+  window.addEventListener('resize',fitPreview);
+  document.getElementById('modal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeLinks()});
+});
+</script>
+</body>
+</html>
